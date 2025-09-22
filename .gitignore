@@ -1,0 +1,12 @@
+# macOS
+.DS_Store
+
+# Éditeurs
+.vscode/
+.idea/
+
+# Python / Node (si jamais utilisés)
+__pycache__/
+*.log
+.env
+node_modules/
