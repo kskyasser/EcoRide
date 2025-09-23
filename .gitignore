@@ -1,3 +1,8 @@
+# Ignore le fichier de connexion MySQL
+config/db.php
+
+# (optionnel) ignorer aussi les fichiers d'environnement
+*.env
 # macOS
 .DS_Store
 
