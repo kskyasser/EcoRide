@@ -6,8 +6,20 @@ require_once __DIR__ . '/../config/db.php';
 $pdo = get_pdo();
 
 // Récupérer les trajets (ordre par date)
-$stmt  = $pdo->query("SELECT id, departure, destination, trip_date, seats_available, driver
-                      FROM trips ORDER BY trip_date ASC");
+
+// --- Recherche (facultative) ---
+$q = trim($_GET['q'] ?? '');
+
+// Prépare la requête selon la présence d'un mot-clé
+if ($q !== '') {
+    $sql  = "SELECT * FROM trips
+             WHERE departure LIKE :q OR destination LIKE :q OR driver LIKE :q
+             ORDER BY trip_date ASC";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute([':q' => "%{$q}%"]);
+} else {
+    $stmt = $pdo->query("SELECT * FROM trips ORDER BY trip_date ASC");
+}
 $trips = $stmt->fetchAll();
 ?>
 <!doctype html>
@@ -28,9 +40,27 @@ $trips = $stmt->fetchAll();
 <body>
   <h1>🚗🌱 Trajets disponibles</h1>
 
+<?php if (isset($_GET['added'])): ?>
+  <p style="background:#e7f7ec;border:1px solid #a8e0b5;color:#136b2d;padding:10px;border-radius:8px">
+    ✅ Trajet ajouté avec succès.
+  </p>
+<?php endif; ?>
+
   <?php if (!$trips): ?>
     <p class="empty">Aucun trajet pour le moment.</p>
   <?php else: ?>
+
+<form method="get" style="margin:12px 0; display:flex; gap:8px; align-items:center;">
+  <input name="q" value="<?= htmlspecialchars($q ?? '') ?>" placeholder="Rechercher (Paris, Nice, Alice…)"
+         style="padding:6px 10px; border:1px solid #ccc; border-radius:6px; flex:1;">
+  <button type="submit" style="padding:6px 10px; border:1px solid #2e8b57; background:#2e8b57; color:#fff; border-radius:6px;">
+    Rechercher
+  </button>
+  <?php if (($q ?? '') !== ''): ?>
+    <a href="index.php" style="color:#555; text-decoration:none;">Annuler</a>
+  <?php endif; ?>
+</form>
+
     <table>
       <thead>
         <tr>
@@ -56,5 +86,6 @@ $trips = $stmt->fetchAll();
       </tbody>
     </table>
   <?php endif; ?>
+<p style="margin-top:16px"><a href="add.php">➕ Ajouter un trajet</a></p>
 </body>
 </html>
