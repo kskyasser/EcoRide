@@ -46,6 +46,13 @@ $trips = $stmt->fetchAll();
   </p>
 <?php endif; ?>
 
+<?php if (!empty($_GET['flash'])): ?>
+  <p style="background:#e8fff3;border:1px solid #b6f0cd;padding:8px;border-radius:6px;max-width:920px">
+    <?= $_GET['flash']==='added'?'Trajet ajouté.':($_GET['flash']==='updated'?'Trajet modifié.':($_GET['flash']==='deleted'?'Trajet supprimé.':'')) ?>
+  </p>
+<?php endif; ?>
+
+
   <?php if (!$trips): ?>
     <p class="empty">Aucun trajet pour le moment.</p>
   <?php else: ?>
@@ -70,6 +77,7 @@ $trips = $stmt->fetchAll();
           <th>Date</th>
           <th>Places</th>
           <th>Conducteur</th>
+          <th>Action</th>
         </tr>
       </thead>
       <tbody>
@@ -81,6 +89,21 @@ $trips = $stmt->fetchAll();
             <td><?= htmlspecialchars($t['trip_date']) ?></td>
             <td><?= (int)$t['seats_available'] ?></td>
             <td><?= htmlspecialchars($t['driver']) ?></td>
+            <td><a href="edit.php?id=<?= (int)$t['id'] ?>">✏️ Modifier</a>
+  <form action="delete.php" method="post" style="display:inline" 
+        onsubmit="return confirm('Supprimer ce trajet ?');">
+    <input type="hidden" name="id" value="<?= (int)$t['id'] ?>">
+    <button type="submit" style="
+      background:none;
+      border:none;
+      color:#b00;
+      cursor:pointer;
+      text-decoration:underline;">
+      🗑️ Supprimer
+    </button>
+  </form>
+</td>
+
           </tr>
         <?php endforeach; ?>
       </tbody>
